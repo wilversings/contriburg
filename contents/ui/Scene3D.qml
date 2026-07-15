@@ -11,6 +11,11 @@ Item {
     property string colorMode: "fixed"
     property int colorRerollSeed: 0
 
+    // Exposed for tests: ids aren't visible outside this file, so the day
+    // cubes and camera controller need an explicit alias to be inspectable.
+    property alias dayRepeater: repeater3d
+    property alias cameraController: orbitController
+
     readonly property var accentPalette: [
         "#ef4444", "#f97316", "#eab308", "#22c55e", "#14b8a6", "#3b82f6", "#a855f7"
     ]
@@ -58,6 +63,7 @@ Item {
             id: sceneRoot
 
             Repeater3D {
+                id: repeater3d
                 model: root.contributionData
 
                 Model {
@@ -110,6 +116,7 @@ Item {
         }
 
         OrbitCameraController {
+            id: orbitController
             anchors.fill: parent
             origin: sceneRoot
             camera: camera

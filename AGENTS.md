@@ -2,11 +2,13 @@
 
 Guidance for coding agents working in this repo. It's a KDE Plasma 6
 applet (Plasmoid), not a standalone app — there's no compile step or
-package manager, and no test suite. Everything is QML/JS read directly by
-`plasmashell` or `plasmoidviewer` at runtime. `build.sh` (requires `jq` and
-`tar`) just tars `contents/` + `metadata.json` into
-`build/<id>-<version>.tar.xz` for distribution (e.g. to the KDE Store) —
-it doesn't compile anything.
+package manager. Everything is QML/JS read directly by `plasmashell` or
+`plasmoidviewer` at runtime. `build.sh` (requires `jq` and `tar`) just tars
+`contents/` + `metadata.json` into `build/<id>-<version>.tar.xz` for
+distribution (e.g. to the KDE Store) — it doesn't compile anything.
+`tests/` holds QML unit tests for `DataFetcher.js` and `Scene3D.qml` (see
+Runtime/testing below); `main.qml` itself is still only verified by running
+the applet, for reasons explained there.
 
 ## Project layout
 
@@ -25,6 +27,12 @@ contents/
     ├── Scene3D.qml            # Qt Quick 3D scene, loaded via Loader from main.qml
     ├── ConfigGeneral.qml     # settings page QML (Kirigami.FormLayout)
     └── DataFetcher.js         # GitHub GraphQL/scraper + GitLab calendar fetch (.pragma library)
+tests/
+├── tst_datafetcher.qml       # DataFetcher.js: validation, parsing, level thresholds
+├── tst_scene3d.qml           # Scene3D.qml: grid/height/color logic, loaded via Loader
+├── CMakeLists.txt            # ctest integration (shells out to qmltestrunner-qt6)
+├── run_tests.sh              # standalone runner, no CMake needed
+└── README.md                 # what's covered, what isn't, and why
 ```
 
 ## Config wiring — read this before touching config.qml or ConfigGeneral.qml
@@ -46,7 +54,16 @@ Three files must stay in sync for a config value to work end-to-end:
 
 ## Runtime/testing
 
-No automated tests exist. Verify changes by actually running the applet:
+`Scene3D.qml` and `DataFetcher.js` have QML unit tests in `tests/`
+(`./tests/run_tests.sh`, requires `qmltestrunner-qt6`) — run them after
+touching either file. See `tests/README.md` for what they cover.
+
+`main.qml` itself has no unit tests: it reads config through
+`Plasmoid.configuration`, an **attached property** resolved by the real
+`org.kde.plasma.plasmoid` C++ plugin against a live `PlasmoidItem`/applet
+instance — unlike a plain context property, it can't be swapped for a mock
+QML object outside of that real environment. Verify `main.qml` changes by
+actually running the applet:
 
 ```sh
 # Standalone window, doesn't touch live panels — fastest iteration loop

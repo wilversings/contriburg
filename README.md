@@ -93,6 +93,9 @@ To package the widget for distribution (e.g. the KDE Store), run:
 This creates `build/contriburg-<version>.tar.xz` containing `contents/`
 and `metadata.json`. Requires `jq` and `tar`.
 
+To run the unit tests, run `./tests/run_tests.sh` (requires
+`qmltestrunner-qt6`). See `tests/README.md` for what's covered.
+
 ## Project structure
 
 ```text
@@ -107,6 +110,7 @@ contents/
     ├── Scene3D.qml            # View3D scene: cubes, camera, lighting, picking
     ├── ConfigGeneral.qml     # Settings UI (Kirigami.FormLayout)
     └── DataFetcher.js         # GitHub GraphQL/scraper + GitLab calendar fetch
+tests/                        # QML unit tests, see tests/README.md
 ```
 
 ## Known limitations
