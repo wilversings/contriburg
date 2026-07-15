@@ -8,6 +8,20 @@ Item {
     property color baseColor: "#21c55d"
     property real heightMultiplier: 1.0
     property bool lockCamera: false
+    property string colorMode: "fixed"
+    property int colorRerollSeed: 0
+
+    readonly property var accentPalette: [
+        "#ef4444", "#f97316", "#eab308", "#22c55e", "#14b8a6", "#3b82f6", "#a855f7"
+    ]
+
+    // seed is otherwise unused: passing it lets a caller's binding depend on it
+    // (see cubeColor below), so bumping colorRerollSeed forces a fresh roll.
+    function randomShade(seed) {
+        var swatch = accentPalette[Math.floor(Math.random() * accentPalette.length)]
+        var factor = 1.0 + Math.random() * 0.7
+        return Math.random() < 0.5 ? Qt.lighter(swatch, factor) : Qt.darker(swatch, factor)
+    }
 
     signal tooltipRequested(string text, real x, real y)
     signal tooltipCleared()
@@ -73,9 +87,17 @@ Item {
                     property string dateStr: modelData.date || ""
                     property int contribCount: count
 
+                    // Rolled once per cube when it's created (each fetch/refresh recreates
+                    // the Repeater3D delegates, so this reshuffles then too) or whenever
+                    // colorRerollSeed changes (the config UI's manual "Reroll" button bumps it).
+                    property color cubeColor: root.colorMode === "random"
+                        ? root.randomShade(root.colorRerollSeed)
+                        : root.baseColor
+
                     materials: PrincipledMaterial {
                         baseColor: {
                             if (level === 0) return "#ebedf0"
+                            if (root.colorMode === "random") return cubeColor
                             if (level === 1) return Qt.lighter(root.baseColor, 1.6)
                             if (level === 2) return Qt.lighter(root.baseColor, 1.2)
                             if (level === 3) return root.baseColor

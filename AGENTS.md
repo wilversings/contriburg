@@ -1,9 +1,12 @@
 # AGENTS.md
 
 Guidance for coding agents working in this repo. It's a KDE Plasma 6
-applet (Plasmoid), not a standalone app — there's no build step, package
-manager, or test suite. Everything is QML/JS read directly by `plasmashell`
-or `plasmoidviewer` at runtime.
+applet (Plasmoid), not a standalone app — there's no compile step or
+package manager, and no test suite. Everything is QML/JS read directly by
+`plasmashell` or `plasmoidviewer` at runtime. `build.sh` (requires `jq` and
+`tar`) just tars `contents/` + `metadata.json` into
+`build/<id>-<version>.tar.xz` for distribution (e.g. to the KDE Store) —
+it doesn't compile anything.
 
 ## Project layout
 
@@ -12,6 +15,7 @@ user-facing docs. Source of truth for structure:
 
 ```text
 metadata.json               # KPlugin.Id, Name, Version, X-Plasma-API-Minimum-Version
+build.sh                    # Packages contents/+metadata.json into build/<id>-<version>.tar.xz
 contents/
 ├── config/
 │   ├── main.xml             # kcfg schema — property name/type/default per entry
@@ -20,7 +24,7 @@ contents/
     ├── main.qml              # PlasmoidItem root
     ├── Scene3D.qml            # Qt Quick 3D scene, loaded via Loader from main.qml
     ├── ConfigGeneral.qml     # settings page QML (Kirigami.FormLayout)
-    └── DataFetcher.js         # GitHub GraphQL fetch (.pragma library)
+    └── DataFetcher.js         # GitHub GraphQL/scraper + GitLab calendar fetch (.pragma library)
 ```
 
 ## Config wiring — read this before touching config.qml or ConfigGeneral.qml
@@ -54,9 +58,8 @@ kpackagetool6 --type Plasma/Applet --upgrade .   # subsequent changes
 ```
 
 `plasmoidviewer` does not hot-reload — restart it after editing QML.
-There is no `qmllint`/`qmlformat` available in this environment (checked);
-review QML changes by reading them carefully and running the applet rather
-than relying on a linter.
+`qmllint-qt6` is available in this environment and understands both `.qml`
+and `.js` files — run it over touched files before calling a change done.
 
 When changing `Scene3D.qml`, confirm Qt Quick 3D is actually present
 (`qmlimportscanner` or just run `plasmoidviewer`) — the fallback error
@@ -70,15 +73,26 @@ between a missing dependency and a silent blank widget.
   `backgroundMode: SceneEnvironment.Transparent`. Keep both if you want the
   widget to stay borderless/transparent — removing one without the other
   leaves a visible opaque/boxed background.
-- The GitHub PAT (`cfg_githubToken`) is stored via kcfg in plain text
-  (standard Plasma applet config storage, not the system keychain) and
-  sent as an `Authorization: bearer` header directly from QML/JS. Don't
-  log it, and don't widen its usage beyond the existing GraphQL call in
-  `DataFetcher.js`.
-- `DataFetcher.js` has a commented-out HTML-scraper fallback
-  (`fetchWithScraper`) for tokenless use — it's unfinished/unwired, not
-  dead code to delete casually; check with the user before removing or
-  completing it.
-- `ConfigGeneral.qml`'s color-swatch `MouseArea` calls `colorDialog.open()`
-  but the `ColorDialog` itself is commented out, so clicking it currently
-  throws a runtime `ReferenceError`. Known, not yet fixed.
+- The GitHub PAT (`cfg_githubToken`, optional) is stored via kcfg in plain
+  text (standard Plasma applet config storage, not the system keychain) and
+  sent as an `Authorization: bearer` header directly from QML/JS to
+  `api.github.com/graphql` only. Don't log it, and don't widen its usage
+  beyond that one call in `DataFetcher.js`.
+- There is intentionally **no** GitLab PAT field/config entry. GitLab's
+  `calendar.json` (used by `fetchGitlabCalendar`) authenticates via session
+  cookie or a separate feed token, never a personal access token, so
+  collecting one would just be an inert secret sitting in plaintext config
+  for no functional benefit — don't re-add it without a real authenticated
+  call (e.g. `/api/v4`) that actually uses it.
+- `DataFetcher.js`'s tokenless GitHub path (`fetchGithubContributionsPage` /
+  `parseGithubContributionsHtml`) scrapes the public
+  `github.com/users/<username>/contributions` page instead of calling an
+  API. GitHub's grid HTML lists `<td>` cells in row-major (day-of-week)
+  order, not chronological order, and per-day counts live in separate
+  `<tool-tip for="<td id>">` elements, not inside the `<td>` — the parser
+  keys tooltips by id and sorts the result by date; don't "simplify" that
+  away or the skyline will come out visually scrambled. This is inherently
+  more fragile than the GraphQL path since GitHub's HTML isn't a stable
+  contract — if it silently breaks, `parseGithubContributionsHtml` returns
+  an empty array and `fetchGithubContributionsPage` reports "GitHub may
+  have changed their page layout" rather than misrendering.

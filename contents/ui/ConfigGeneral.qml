@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils as KCM
-import QtQuick.Dialogs as QtDialogs
 
 Kirigami.FormLayout {
     id: page
@@ -13,11 +12,12 @@ Kirigami.FormLayout {
     property alias cfg_githubUsername: usernameField.text
     property alias cfg_githubToken: tokenField.text
     property alias cfg_gitlabUsername: gitlabUsernameField.text
-    property alias cfg_gitlabToken: gitlabTokenField.text
     property alias cfg_gitlabInstanceUrl: gitlabInstanceField.text
     property alias cfg_heightMultiplier: heightSlider.value
     property alias cfg_refreshInterval: refreshSpinBox.value
     property alias cfg_lockCamera: lockCameraCheckBox.checked
+    property string cfg_colorMode: "fixed"
+    property int cfg_colorRerollSeed: 0
 
     property color cfg_baseColor: "#21c55d"
 
@@ -58,14 +58,6 @@ Kirigami.FormLayout {
     }
 
     TextField {
-        id: gitlabTokenField
-        visible: page.cfg_platform === "gitlab"
-        Kirigami.FormData.label: "Personal Access Token (optional):"
-        placeholderText: "glpat-..."
-        echoMode: TextInput.Password
-    }
-
-    TextField {
         id: gitlabInstanceField
         visible: page.cfg_platform === "gitlab"
         Kirigami.FormData.label: "GitLab Instance URL:"
@@ -100,8 +92,18 @@ Kirigami.FormLayout {
     }
 
     RowLayout {
-        Kirigami.FormData.label: "Base Color:"
+        Kirigami.FormData.label: "Color Mode:"
+
+        ComboBox {
+            id: colorModeComboBox
+            model: ["Fixed", "Random"]
+            property var values: ["fixed", "random"]
+            currentIndex: Math.max(0, values.indexOf(page.cfg_colorMode))
+            onActivated: page.cfg_colorMode = values[currentIndex]
+        }
+
         Rectangle {
+            visible: page.cfg_colorMode === "fixed"
             width: 32
             height: 32
             color: page.cfg_baseColor
@@ -113,6 +115,19 @@ Kirigami.FormLayout {
                 onClicked: colorDialog.open()
             }
         }
+
+        Button {
+            visible: page.cfg_colorMode === "random"
+            text: "Reroll"
+            icon.name: "view-refresh"
+            onClicked: page.cfg_colorRerollSeed = page.cfg_colorRerollSeed + 1
+        }
     }
 
+    ColorDialog {
+        id: colorDialog
+        title: "Choose a Base Color"
+        selectedColor: page.cfg_baseColor
+        onAccepted: page.cfg_baseColor = selectedColor
+    }
 }

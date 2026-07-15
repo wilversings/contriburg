@@ -34,7 +34,6 @@ PlasmoidItem {
         function onGithubUsernameChanged() { fetch() }
         function onGithubTokenChanged() { fetch() }
         function onGitlabUsernameChanged() { fetch() }
-        function onGitlabTokenChanged() { fetch() }
         function onGitlabInstanceUrlChanged() { fetch() }
     }
 
@@ -42,7 +41,7 @@ PlasmoidItem {
         var platform = Plasmoid.configuration.platform || "github"
         var isGitlab = platform === "gitlab"
         var username = isGitlab ? Plasmoid.configuration.gitlabUsername : Plasmoid.configuration.githubUsername
-        var token = isGitlab ? Plasmoid.configuration.gitlabToken : Plasmoid.configuration.githubToken
+        var token = isGitlab ? undefined : Plasmoid.configuration.githubToken
 
         if (!username) {
             errorMessage = isGitlab ? "Please configure a GitLab username." : "Please configure a GitHub username."
@@ -102,6 +101,18 @@ PlasmoidItem {
             target: sceneLoader.item
             property: "baseColor"
             value: Plasmoid.configuration.baseColor || "#21c55d"
+            restoreMode: Binding.RestoreBinding
+        }
+        Binding {
+            target: sceneLoader.item
+            property: "colorMode"
+            value: Plasmoid.configuration.colorMode || "fixed"
+            restoreMode: Binding.RestoreBinding
+        }
+        Binding {
+            target: sceneLoader.item
+            property: "colorRerollSeed"
+            value: Plasmoid.configuration.colorRerollSeed
             restoreMode: Binding.RestoreBinding
         }
         Binding {
