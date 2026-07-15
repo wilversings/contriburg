@@ -12,12 +12,13 @@ the applet, for reasons explained there.
 
 ## Project layout
 
-See `REQUIREMENTS.md` for the original feature spec and `README.md` for
-user-facing docs. Source of truth for structure:
+See `README.md` for user-facing docs and `KDESTOREPAGE.md` for the KDE
+Store listing copy. Source of truth for structure:
 
 ```text
 metadata.json               # KPlugin.Id, Name, Version, X-Plasma-API-Minimum-Version
 build.sh                    # Packages contents/+metadata.json into build/<id>-<version>.tar.xz
+KDESTOREPAGE.md              # KDE Store listing page content — keep in sync with features/config
 contents/
 ├── config/
 │   ├── main.xml             # kcfg schema — property name/type/default per entry
@@ -85,6 +86,10 @@ between a missing dependency and a silent blank widget.
 
 ## Conventions / gotchas already found in this codebase
 
+- `KDESTOREPAGE.md` is the KDE Store listing copy, separate from
+  `README.md` (which is for developers/GitHub visitors). When a change
+  adds/removes a user-facing feature or config option, or changes
+  requirements, update both so they don't drift apart.
 - `main.qml` sets `Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground`
   intentionally, and `Scene3D.qml`'s `SceneEnvironment` uses
   `backgroundMode: SceneEnvironment.Transparent`. Keep both if you want the
