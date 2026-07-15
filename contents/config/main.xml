@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+    <group name="General">
+        <entry name="platform" type="String">
+            <default>github</default>
+        </entry>
+        <entry name="githubUsername" type="String">
+            <default></default>
+        </entry>
+        <entry name="githubToken" type="String">
+            <default></default>
+        </entry>
+        <entry name="gitlabUsername" type="String">
+            <default></default>
+        </entry>
+        <entry name="gitlabToken" type="String">
+            <default></default>
+        </entry>
+        <entry name="gitlabInstanceUrl" type="String">
+            <default>https://gitlab.com</default>
+        </entry>
+        <entry name="baseColor" type="Color">
+            <default>#21c55d</default>
+        </entry>
+        <entry name="heightMultiplier" type="Double">
+            <default>1.0</default>
+        </entry>
+        <entry name="refreshInterval" type="Int">
+            <default>360</default>
+        </entry>
+        <entry name="lockCamera" type="Bool">
+            <default>false</default>
+        </entry>
+    </group>
+</kcfg>
