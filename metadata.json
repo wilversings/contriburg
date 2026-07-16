@@ -11,7 +11,7 @@
         "Description": "A 3D skyline built from your GitHub contribution graph",
         
         "Category": "Fun and Games",
-        "Icon": "/assets/icon.svg",
+        "Icon": "/assets/icon.png",
         "License": "GPL3",
         "BugReportUrl": "TODO",
         "Website": "TODO",

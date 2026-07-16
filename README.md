@@ -1,6 +1,6 @@
 # Contriburg 🏙️
 
-![Contriburg](./screenshot.png)
+![Contriburg](./contents/assets/icon.png)
 
 Your GitHub/GitLab contribution graph, but make it a skyline. KDE Plasma 6
 widget that turns each day into a 3D cube — tall and proud for a good day,
