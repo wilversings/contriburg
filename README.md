@@ -1,5 +1,7 @@
 # Contriburg
 
+![Contriburg](./screenshot.png)
+
 A KDE Plasma 6 widget that renders your GitHub contribution graph as an
 interactive 3D skyline instead of the usual flat 2D grid. Each day is a
 cube whose height and color reflect your contribution count for that day;

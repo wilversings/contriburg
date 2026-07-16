@@ -34,6 +34,9 @@ tests/
 ├── CMakeLists.txt            # ctest integration (shells out to qmltestrunner-qt6)
 ├── run_tests.sh              # standalone runner, no CMake needed
 └── README.md                 # what's covered, what isn't, and why
+tools/
+├── grab_screenshot.qml       # Renders Scene3D.qml offscreen to a transparent PNG (grabToImage)
+└── README.md                 # usage/arguments
 ```
 
 ## Config wiring — read this before touching config.qml or ConfigGeneral.qml
