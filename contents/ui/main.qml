@@ -85,7 +85,7 @@ PlasmoidItem {
         id: sceneLoader
         anchors.fill: parent
         source: "Scene3D.qml"
-        visible: !isLoading && errorMessage === "" && contributionData.length > 0
+        visible: errorMessage === "" && contributionData.length > 0
         onStatusChanged: {
             if (status === Loader.Error) {
                 errorMessage = "Failed to load 3D scene. Ensure QtQuick3D is installed."
@@ -161,14 +161,10 @@ PlasmoidItem {
         }
     }
 
-    PlasmaComponents.ToolTip {
-        id: sceneTooltip
-        visible: tooltipText !== ""
-        text: tooltipText
-        // Optional: position mapping
-    }
-
-    // A simple overlay label since native tooltip might be tricky with mouse area inside Loader
+    // Custom overlay label (not PlasmaComponents.ToolTip - that's positioned by
+    // Plasma itself, not by the mouse's actual position over the 3D scene,
+    // and having both up at once rendered a duplicate: one near the top,
+    // one down here).
     Rectangle {
         id: overlayTooltip
         visible: tooltipText !== ""

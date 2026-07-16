@@ -80,6 +80,8 @@ Kirigami.FormLayout {
     Slider {
         id: heightSlider
         Kirigami.FormData.label: "Height Multiplier:"
+        Layout.fillWidth: true
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 16
         from: 0.1
         to: 5.0
         stepSize: 0.1
