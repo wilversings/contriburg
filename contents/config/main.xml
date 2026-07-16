@@ -36,4 +36,28 @@
             <default>false</default>
         </entry>
     </group>
+    <group name="Camera">
+        <!-- Not user-facing (no ConfigGeneral.qml control) - persisted session
+             state so the orbit/pan/zoom the user left the camera in survives
+             a plasmashell restart. cameraZoomZ: 0 means "no saved zoom", fall
+             back to Scene3D.qml's auto-fit distance instead of this value. -->
+        <entry name="cameraRotationX" type="Double">
+            <default>0</default>
+        </entry>
+        <entry name="cameraRotationY" type="Double">
+            <default>0</default>
+        </entry>
+        <entry name="cameraPositionX" type="Double">
+            <default>0</default>
+        </entry>
+        <entry name="cameraPositionY" type="Double">
+            <default>0</default>
+        </entry>
+        <entry name="cameraPositionZ" type="Double">
+            <default>0</default>
+        </entry>
+        <entry name="cameraZoomZ" type="Double">
+            <default>0</default>
+        </entry>
+    </group>
 </kcfg>

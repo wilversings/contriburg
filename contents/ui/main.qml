@@ -89,6 +89,16 @@ PlasmoidItem {
         onStatusChanged: {
             if (status === Loader.Error) {
                 errorMessage = "Failed to load 3D scene. Ensure QtQuick3D is installed."
+            } else if (status === Loader.Ready) {
+                // One-time restore, not a Binding: the user's saved orbit/pan
+                // should apply once at startup, then be free to diverge as they
+                // interact. What these numbers mean (e.g. cameraZoomZ === 0
+                // meaning "never saved") is Scene3D.qml's concern, not ours.
+                item.restoreCameraState(
+                    Plasmoid.configuration.cameraRotationX, Plasmoid.configuration.cameraRotationY,
+                    Plasmoid.configuration.cameraPositionX, Plasmoid.configuration.cameraPositionY, Plasmoid.configuration.cameraPositionZ,
+                    Plasmoid.configuration.cameraZoomZ
+                )
             }
         }
         Binding {
@@ -137,6 +147,17 @@ PlasmoidItem {
         }
         function onTooltipCleared() {
             tooltipText = ""
+        }
+        // Scene3D.qml debounces this itself (dragging/zooming fire many times
+        // a second) and only emits once things settle - this is just the
+        // Plasmoid.configuration write, nothing else.
+        function onCameraStateSettled(rotationX, rotationY, positionX, positionY, positionZ, zoom) {
+            Plasmoid.configuration.cameraRotationX = rotationX
+            Plasmoid.configuration.cameraRotationY = rotationY
+            Plasmoid.configuration.cameraPositionX = positionX
+            Plasmoid.configuration.cameraPositionY = positionY
+            Plasmoid.configuration.cameraPositionZ = positionZ
+            Plasmoid.configuration.cameraZoomZ = zoom
         }
     }
 

@@ -1,3 +1,2 @@
-- Round the corners of the 3D blocks
 - Move appearance configuration into another category (currently not needed because there are very few configuration)
 - Add a icon other than predefined ones

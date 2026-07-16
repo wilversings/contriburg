@@ -53,6 +53,18 @@ Three files must stay in sync for a config value to work end-to-end:
    `PageRow.qml` when the config window opens. This bit us once already —
    double-check any new `ConfigCategory.source` path against this rule.
 
+kcfg entries don't strictly need step 2 — a `<group>` with no corresponding
+`cfg_` control (see the `Camera` group: `cameraRotationX/Y`, `cameraPositionX/Y/Z`,
+`cameraZoomZ`) is valid and just means nothing in the Configure dialog shows
+it. That's the deliberate pattern for persisted-but-not-user-facing session
+state. `main.qml` is kept a thin `Plasmoid.configuration.*` pass-through only
+(it has no unit tests, so logic there is unverifiable) — it calls
+`Scene3D.qml`'s `restoreCameraState(...)` once on `Loader.onStatusChanged` →
+`Ready`, and writes `Plasmoid.configuration.*` from `Scene3D.qml`'s debounced
+`cameraStateSettled` signal. All the actual decisions (what the zoom-`0`
+sentinel means, how long to debounce) live in `Scene3D.qml`, where they're
+covered by `tests/tst_scene3d.qml`.
+
 ## Runtime/testing
 
 `Scene3D.qml` and `DataFetcher.js` have QML unit tests in `tests/`
@@ -86,6 +98,22 @@ between a missing dependency and a silent blank widget.
 
 ## Conventions / gotchas already found in this codebase
 
+- `Scene3D.qml`'s camera is a `cameraRig` `Node` (pitch + vertical pivot)
+  containing a `PerspectiveCamera` with zero rotation of its own. Don't put
+  rotation directly back on the camera — `OrbitCameraController`'s zoom only
+  ever translates `camera.z`, and if the camera carried its own fixed pitch,
+  that translation would drift the look-at point off-center as distance
+  changes (this exact bug shipped once already: zooming in visibly slid the
+  grid toward the bottom of the frame). Whatever world Y `cameraRig.y` is set
+  to always renders at the vertical center of frame, by construction.
+  Also: the camera's `fieldOfViewOrientation` is deliberately `Horizontal`,
+  not the default — the grid is very wide and short, and locking to
+  *vertical* FOV instead makes the horizontal FOV balloon past 100° at
+  typical wide/short panel aspect ratios (fisheye distortion, not "zoomed
+  in" — this also shipped once, briefly). `camera.z`'s `widthFitZ`/
+  `heightFitZ` and `cameraRig.y` (`maxBarHeight / 2`) were derived together
+  assuming symmetric framing around that pivot; if you change one, check the
+  other still fits both the grid width and the tallest current bar.
 - `KDESTOREPAGE.md` is the KDE Store listing copy, separate from
   `README.md` (which is for developers/GitHub visitors). When a change
   adds/removes a user-facing feature or config option, or changes

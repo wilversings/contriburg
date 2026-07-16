@@ -137,5 +137,52 @@ Item {
             wait(20)
             compare(sceneLoader.item.cameraController.mouseEnabled, false)
         }
+
+        // Camera persistence: main.qml is just a thin Plasmoid.configuration
+        // pass-through (untestable - attached-property dependency); the
+        // actual restore/debounce-save logic lives here, so it's tested here.
+
+        function test_restoreCameraState_appliesRotationAndPosition() {
+            sceneLoader.item.restoreCameraState(45, 30, 10, 20, 30, 555)
+            compare(sceneLoader.item.sceneRotation.x, 45)
+            compare(sceneLoader.item.sceneRotation.y, 30)
+            compare(sceneLoader.item.scenePosition.x, 10)
+            compare(sceneLoader.item.scenePosition.y, 20)
+            compare(sceneLoader.item.scenePosition.z, 30)
+            compare(sceneLoader.item.cameraDistance, 555)
+            // Same underlying PerspectiveCamera the OrbitCameraController zooms.
+            compare(sceneLoader.item.cameraController.camera.z, 555)
+        }
+
+        function test_restoreCameraState_zeroZoomKeepsAutoFitDistance() {
+            var autoFitDistance = sceneLoader.item.cameraDistance
+            verify(autoFitDistance > 0, "auto-fit should have picked a distance before any restore call")
+
+            sceneLoader.item.restoreCameraState(0, 0, 0, 0, 0, 0)
+
+            compare(sceneLoader.item.cameraDistance, autoFitDistance,
+                "zoom === 0 means 'never saved' and must not stomp the auto-fit distance")
+        }
+
+        function test_cameraStateSettled_firesOnceAfterDebounce() {
+            var settledCount = 0
+            var lastArgs = null
+            sceneLoader.item.cameraStateSettled.connect(function(rx, ry, px, py, pz, zoom) {
+                settledCount++
+                lastArgs = [rx, ry, px, py, pz, zoom]
+            })
+
+            sceneLoader.item.sceneRotation = Qt.vector3d(1, 2, 0)
+            sceneLoader.item.scenePosition = Qt.vector3d(3, 4, 5)
+            sceneLoader.item.cameraDistance = 700
+
+            // Debounced: shouldn't have fired yet immediately after the changes.
+            compare(settledCount, 0, "cameraStateSettled should be debounced, not immediate")
+
+            wait(1000)
+
+            compare(settledCount, 1, "should settle exactly once after the changes stop")
+            compare(lastArgs, [1, 2, 3, 4, 5, 700])
+        }
     }
 }

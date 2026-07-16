@@ -47,7 +47,7 @@ ctest --test-dir build --output-on-failure
 | File | Description |
 |------|-------------|
 | `tst_datafetcher.qml` | Tests for `DataFetcher.js`: input validation, the GitLab `https://`-only check, contribution-level thresholds, and the GitHub HTML-scraper parser. |
-| `tst_scene3d.qml` | Tests for `Scene3D.qml`: cube count/grid placement, height scaling, fixed-mode level colors, random-mode color diversity and reroll, and the lock-camera toggle. |
+| `tst_scene3d.qml` | Tests for `Scene3D.qml`: cube count/grid placement, height scaling, fixed-mode level colors, random-mode color diversity and reroll, the lock-camera toggle, and the camera position persistence logic (`restoreCameraState()`, the debounced `cameraStateSettled` signal) that `main.qml` calls into. |
 | `CMakeLists.txt` | Registers the tests with `ctest` by shelling out to `qmltestrunner-qt6`. |
 | `run_tests.sh` | Standalone script to run the tests without CMake. |
 

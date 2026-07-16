@@ -13,7 +13,7 @@ and count.
 - Renders a 52x7 grid of cubes with Qt Quick 3D, scaled by contribution
   count and colored by contribution level (matching GitHub's 5-level scale).
 - Orbit/zoom camera control (or lock the camera in place), per-cube hover
-  tooltips.
+  tooltips. Camera position is remembered across restarts.
 - Configurable username, base color, height multiplier, and refresh interval.
 - Transparent background so the scene blends into the panel/desktop.
 
