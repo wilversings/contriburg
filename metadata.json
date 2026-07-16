@@ -15,7 +15,7 @@
         "License": "GPL3",
         "BugReportUrl": "TODO",
         "Website": "TODO",
-        "Version": "0.0.1"
+        "Version": "1.0.0"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
 }
