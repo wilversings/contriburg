@@ -120,7 +120,11 @@ between a missing dependency and a silent blank widget.
 - `KDESTOREPAGE.md` is the KDE Store listing copy, separate from
   `README.md` (which is for developers/GitHub visitors). When a change
   adds/removes a user-facing feature or config option, or changes
-  requirements, update both so they don't drift apart.
+  requirements, update both so they don't drift apart. Both are read by
+  people with about ten seconds of patience, so keep them concise, light in
+  tone, and even witty (short jokes, emojis) — not dry feature-list prose.
+  Don't let a "just add this one detail" edit regress them back into a
+  wall of text.
 - `main.qml` sets `Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground`
   intentionally, and `Scene3D.qml`'s `SceneEnvironment` uses
   `backgroundMode: SceneEnvironment.Transparent`. Keep both if you want the

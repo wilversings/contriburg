@@ -72,13 +72,31 @@ PlasmoidItem {
         visible: running
     }
 
-    PlasmaComponents.Label {
+    // White box (not theme-colored, unlike overlayTooltip below) - this
+    // message can appear as soon as the widget loads, before the user has
+    // set anything up, and the widget's background is transparent. If it's
+    // dragged onto a light panel/wallpaper with light-on-light theme text,
+    // it can look like nothing rendered at all rather than like a message
+    // waiting to be read.
+    Rectangle {
         anchors.centerIn: parent
-        text: errorMessage
         visible: errorMessage !== ""
-        wrapMode: Text.WordWrap
-        horizontalAlignment: Text.AlignHCenter
-        width: parent.width * 0.9
+        color: "white"
+        border.color: "#cccccc"
+        border.width: 1
+        radius: 4
+        width: errorLabel.width + 16
+        height: errorLabel.height + 12
+
+        PlasmaComponents.Label {
+            id: errorLabel
+            anchors.centerIn: parent
+            text: errorMessage
+            color: "black"
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+            width: Math.min(implicitWidth, widget.width * 0.9 - 16)
+        }
     }
 
     Loader {
