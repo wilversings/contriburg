@@ -12,7 +12,7 @@
         
         "Category": "Fun and Games",
         "Icon": "/assets/icon.png",
-        "License": "GPL3",
+        "License": "GPLv3",
         "BugReportUrl": "https://github.com/wilversings/contriburg/issues",
         "Website": "https://github.com/wilversings/contriburg",
         "Version": "1.0.0"
