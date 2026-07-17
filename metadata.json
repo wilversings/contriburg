@@ -13,8 +13,8 @@
         "Category": "Fun and Games",
         "Icon": "/assets/icon.png",
         "License": "GPL3",
-        "BugReportUrl": "TODO",
-        "Website": "TODO",
+        "BugReportUrl": "https://github.com/wilversings/contriburg/issues",
+        "Website": "https://github.com/wilversings/contriburg",
         "Version": "1.0.0"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
