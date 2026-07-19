@@ -1,5 +1,8 @@
+# VERSION must be kept in sync with metadata.json's KPlugin.Version - it
+# feeds CPACK_PACKAGE_VERSION below, so the NSIS installer's file
+# name/"Add or Remove Programs" entry matches the Plasmoid's own version.
 cmake_minimum_required(VERSION 3.16)
-project(contriburg-standalone LANGUAGES CXX)
+project(contriburg-standalone VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,3 +50,52 @@ install(TARGETS contriburg-standalone DESTINATION .)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/Main.qml ${CMAKE_CURRENT_SOURCE_DIR}/SettingsWindow.qml
     DESTINATION standalone)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../contents DESTINATION .)
+
+# --- Windows installer (CPack + NSIS) -------------------------------------
+# Bundles the Qt runtime via windeployqt, then packages the install tree
+# (see standalone/README.md's "Packaging for Windows" section, which this
+# automates) into a single Contriburg-Setup.exe. Linux/macOS builds skip
+# this block entirely - there's no NSIS generator for them, and the repo's
+# only supported non-Windows path to run the standalone build is `qml -a
+# widget standalone/Main.qml` (see README) or a manual `cmake --install`.
+if(WIN32)
+    get_filename_component(QT6_ROOT_DIR "${Qt6_DIR}/../../.." ABSOLUTE)
+    find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${QT6_ROOT_DIR}/bin")
+    if(WINDEPLOYQT_EXECUTABLE)
+        # CMAKE_INSTALL_PREFIX must stay escaped (\${...}) so it's resolved
+        # by the generated cmake_install.cmake at install/package time, not
+        # baked in here at configure time - CPack overrides it to a staging
+        # directory when it runs this script to build the package, and a
+        # configure-time value would silently deploy into the wrong tree.
+        # --qmldir points at the whole install root (not just standalone/)
+        # so windeployqt also scans ../contents/ui/Scene3D.qml's QtQuick3D
+        # import, same requirement as the manual command in README.md.
+        install(CODE "
+            execute_process(COMMAND \"${WINDEPLOYQT_EXECUTABLE}\" --qmldir \"\${CMAKE_INSTALL_PREFIX}\" \"\${CMAKE_INSTALL_PREFIX}/contriburg-standalone.exe\")
+        ")
+    else()
+        message(WARNING "windeployqt not found next to the Qt6 install - the packaged installer will be missing Qt runtime DLLs")
+    endif()
+
+    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_PACKAGE_NAME "Contriburg")
+    set(CPACK_PACKAGE_VENDOR "Marius Aiordachioaei")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A 3D skyline built from your GitHub contribution graph")
+    set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "Contriburg")
+    set(CPACK_PACKAGE_FILE_NAME "Contriburg-${PROJECT_VERSION}-Setup")
+    # Registers contriburg-standalone.exe for both Start Menu and desktop
+    # shortcuts - see CPack's NSIS generator docs for this variable pair.
+    set(CPACK_PACKAGE_EXECUTABLES "contriburg-standalone" "Contriburg")
+    set(CPACK_CREATE_DESKTOP_LINKS "contriburg-standalone")
+    set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.ico")
+    set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "contriburg-standalone.exe")
+    set(CPACK_NSIS_DISPLAY_NAME "Contriburg")
+    set(CPACK_NSIS_PACKAGE_NAME "Contriburg")
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    set(CPACK_NSIS_MODIFY_PATH OFF)
+    set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/wilversings/contriburg")
+    set(CPACK_NSIS_CONTACT "https://github.com/wilversings/contriburg/issues")
+    include(CPack)
+endif()

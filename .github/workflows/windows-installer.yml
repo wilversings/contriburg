@@ -1,0 +1,65 @@
+name: Windows installer
+
+# Builds the standalone/ variant (see standalone/README.md) on a real
+# Windows box and packages it with CPack/NSIS (see standalone/CMakeLists.txt)
+# into a single Contriburg-<version>-Setup.exe. Nothing in this repo's dev
+# environment can produce or test that installer otherwise - there's no
+# Windows toolchain available outside CI.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "standalone/**"
+      - "contents/**"
+      - ".github/workflows/windows-installer.yml"
+  pull_request:
+    paths:
+      - "standalone/**"
+      - "contents/**"
+      - ".github/workflows/windows-installer.yml"
+  workflow_dispatch: {}
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.7.3"
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          # qtshadertools is Quick3D's own build-time dependency (shader
+          # baking), not something main.cpp or the QML links against
+          # directly - same reasoning as standalone/README.md's note that
+          # windeployqt needs --qmldir to discover the Quick3D usage at all.
+          modules: "qtquick3d qtshadertools"
+          cache: true
+
+      - name: Ensure NSIS is available
+        shell: pwsh
+        run: |
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            choco install nsis -y
+          }
+
+      - name: Configure
+        run: cmake -S standalone -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Package installer
+        working-directory: build
+        run: cpack -C Release -G NSIS
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contriburg-windows-installer
+          path: build/Contriburg-*-Setup.exe
+          if-no-files-found: error

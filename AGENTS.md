@@ -48,7 +48,10 @@ standalone/                  # Non-Plasma build — see standalone/README.md
 ├── Main.qml                  # Window root; reuses ../contents/ui/Scene3D.qml + DataFetcher.js
 ├── SettingsWindow.qml        # plain QtQuick.Controls settings UI (no Kirigami/KCM)
 ├── main.cpp                  # QApplication host (tray icon needs QtWidgets) + alpha QSurfaceFormat
-└── CMakeLists.txt             # copies standalone/+contents/ next to the built executable
+├── CMakeLists.txt             # copies standalone/+contents/ next to the built exe; CPack/NSIS on WIN32
+└── assets/icon.ico            # Windows installer icon (cropped from contents/assets/icon.png)
+.github/workflows/
+└── windows-installer.yml     # builds standalone/ on windows-latest, uploads the NSIS .exe
 ```
 
 ## Config wiring — read this before touching config.qml or ConfigGeneral.qml

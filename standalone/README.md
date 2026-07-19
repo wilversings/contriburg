@@ -83,6 +83,30 @@ loose `.qml` files for their imports (including `QtQuick3D`) and bundles the
 matching plugin DLLs - it can't discover them from `main.cpp` alone, since
 that file never references Quick3D types itself.
 
+### Building a real installer (NSIS)
+
+`standalone/CMakeLists.txt` wraps the two commands above (`cmake --install`
+running `windeployqt`, then CPack) into one NSIS-based installer, so on
+Windows you can skip manual deployment entirely:
+
+```sh
+cmake -S standalone -B standalone/build -DCMAKE_BUILD_TYPE=Release
+cmake --build standalone/build --config Release
+cd standalone/build && cpack -C Release -G NSIS
+```
+
+This produces `Contriburg-<version>-Setup.exe` — Start Menu + optional
+desktop shortcut, a proper uninstaller, no manual `windeployqt` step. It
+needs [NSIS](https://nsis.sourceforge.io/) on `PATH` (`makensis`) in
+addition to the Qt requirements above; the icon comes from
+`standalone/assets/icon.ico`.
+
+`.github/workflows/windows-installer.yml` runs exactly this on a real
+Windows GitHub Actions runner (this repo's dev environment has no Windows
+toolchain to build or test it locally) and uploads the `.exe` as a build
+artifact on every push/PR touching `standalone/` or `contents/`, or on
+demand via `workflow_dispatch`.
+
 ## Known limitation
 
 Confirmed (via testing under the `qml` runtime and the compiled binary
