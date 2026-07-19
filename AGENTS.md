@@ -1,21 +1,14 @@
 # AGENTS.md
 
-Guidance for coding agents working in this repo. The core of it is a KDE
-Plasma 6 applet (Plasmoid), not a standalone app — there's no compile step or
-package manager for it. Everything under `contents/` is QML/JS read directly
-by `plasmashell` or `plasmoidviewer` at runtime. `build.sh` (requires `jq`
-and `tar`) just tars `contents/` + `metadata.json` into
-`build/<id>-<version>.tar.xz` for distribution (e.g. to the KDE Store) — it
-doesn't compile anything. `tests/` holds QML unit tests for `DataFetcher.js`
-and `Scene3D.qml` (see Runtime/testing below); `main.qml` itself is still
-only verified by running the applet, for reasons explained there.
-
-`standalone/` is the one place that *does* have a compile step: a
-non-Plasma Qt Quick build (Windows/macOS/non-Plasma Linux) that reuses
-`Scene3D.qml`/`DataFetcher.js` unchanged via relative imports. See
-`standalone/README.md` for why it needs a small `main.cpp` (a plain
-`QGuiApplication` isn't enough — the tray icon pulls in QtWidgets) when
-nothing else in this repo does.
+Guidance for coding agents working in this repo. It's a KDE Plasma 6
+applet (Plasmoid), not a standalone app — there's no compile step or
+package manager. Everything is QML/JS read directly by `plasmashell` or
+`plasmoidviewer` at runtime. `build.sh` (requires `jq` and `tar`) just tars
+`contents/` + `metadata.json` into `build/<id>-<version>.tar.xz` for
+distribution (e.g. to the KDE Store) — it doesn't compile anything.
+`tests/` holds QML unit tests for `DataFetcher.js` and `Scene3D.qml` (see
+Runtime/testing below); `main.qml` itself is still only verified by running
+the applet, for reasons explained there.
 
 ## Project layout
 
@@ -44,11 +37,6 @@ tests/
 tools/
 ├── grab_screenshot.qml       # Renders Scene3D.qml offscreen to a transparent PNG (grabToImage)
 └── README.md                 # usage/arguments
-standalone/                  # Non-Plasma build — see standalone/README.md
-├── Main.qml                  # Window root; reuses ../contents/ui/Scene3D.qml + DataFetcher.js
-├── SettingsWindow.qml        # plain QtQuick.Controls settings UI (no Kirigami/KCM)
-├── main.cpp                  # QApplication host (tray icon needs QtWidgets) + alpha QSurfaceFormat
-└── CMakeLists.txt             # copies standalone/+contents/ next to the built executable
 ```
 
 ## Config wiring — read this before touching config.qml or ConfigGeneral.qml
